@@ -1,0 +1,36 @@
+version: '3'
+
+volumes:
+  postgres_data:
+      driver: local
+
+services:
+  fastapi_container:
+    container_name: fastapi_container
+    build:
+      context: ./
+      # args: 
+      #   TEST: Test
+    image: udomiljubimca/fastapi_container:1.0
+    ports:
+    - 8081:8080
+    networks:
+    - fastapi_dev
+  arango_db:
+    image: arangodb:latest
+    environment:
+      ARANGO_ROOT_USERNAME: root
+      ARANGO_ROOT_PASSWORD: mypassword
+    ports:
+      - 8529:8529
+    volumes:
+      - arango_db_data_container:/var/lib/arangodb3
+      - arango_apps_data_container:/var/lib/arangodb3-apps
+volumes:
+  arango_db_data_container:
+  arango_apps_data_container:
+
+networks:
+  fastapi_dev:
+    external:
+      name: fastapi_dev
