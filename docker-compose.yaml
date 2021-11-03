@@ -17,7 +17,7 @@ services:
     networks:
     - fastapi_dev
   arango_db:
-    image: arangodb:latest
+    image: arangodb:3.8.2
     environment:
       ARANGO_ROOT_USERNAME: root
       ARANGO_ROOT_PASSWORD: mypassword
