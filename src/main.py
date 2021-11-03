@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import pyarrow as pa
 import csv
-from crud import connection
+from crud import ArangoConn
 
 logger = logging.getLogger(__name__)
 logger.setLevel("DEBUG")
@@ -29,7 +29,7 @@ async def middleware_process(request: Request, call_next):
 
 @app.get("/")
 async def main():
-    conn = connection()
+    conn = ArangoConn.test_connection()
     print(conn['database'])
     return {"HEY": "John Doe"}
 
