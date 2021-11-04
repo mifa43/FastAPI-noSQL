@@ -26,6 +26,8 @@ services:
     volumes:
       - arango_db_data_container:/var/lib/arangodb3
       - arango_apps_data_container:/var/lib/arangodb3-apps
+    networks:
+    - fastapi_dev
 volumes:
   arango_db_data_container:
   arango_apps_data_container:
