@@ -29,8 +29,12 @@ app = FastAPI()
 
 @app.get("/")
 async def main():
-    conn = ArangoConn().test_connection()
-    print(conn['database'])
+    # connection = ArangoConn().test_connection()
+    # collection = ArangoConn().create_collection()
+    document = ArangoConn().create_documents()
+    # print(connection['database'])
+    # print(collection['newCollection'])
+    print(document['newDocument'])
 
     return {"Hey": "John Doe"}
 
