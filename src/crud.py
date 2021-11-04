@@ -1,18 +1,12 @@
-from typing import Protocol
-from arango import ArangoClient
-from arango_orm import ConnectionPool
+from pyArango.connection import Connection
+from pyArango.connection import *
 
 class ArangoConn():
-    def __init__(self, *db) -> None:
-        self.db = db
-    def test_connection(self):
-        client = ArangoClient(
-            hosts=['http://localhost:8529'],
-            host_resolver='roundrobin'
-            )
-        #client1 = ArangoClient(protocol='http', host='localhost', port=8529)
-        test_db = client.db('test', username = "root", password = "mypassword")
-        self.db = ConnectionPool([client], "test", "root", "mypassword")
+    def __init__(self) -> None:
+        conn = Connection(arangoURL="http://arango_db:8529", username="root", password="mypassword", verify=True ,verbose=True)
+        self.db = conn.createDatabase(name="school")
+        self.db = conn["school"]
+    def test_connection(self) -> str:
+        print(self.db)
+    
         return {"database": "connected"}
-    def create_collections(self):
-        pass
