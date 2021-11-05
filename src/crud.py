@@ -14,9 +14,9 @@ class ArangoConn():
         self.createNewCollection = self.db.createCollection(name="Students")
         return {"newCollection": self.db["Students"]}
 
-    def create_documents(self) -> str:
+    def create_documents(self, name, key) -> str:
         document1 = self.db['Students'].createDocument()
-        document1["name"] = "Milos"
-        document1._key = "MilosZlatkovivc"
+        document1["name"] = f"{name}"
+        document1._key = f"{key}"
         document1.save()
         return {"newDocument": document1}
