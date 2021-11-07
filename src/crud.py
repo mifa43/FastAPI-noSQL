@@ -20,3 +20,16 @@ class ArangoConn():
         document1._key = f"{key}"
         document1.save()
         return {"newDocument": document1}
+    
+    def get_student(self, key):
+        document1 = self.db['Students']
+        k=document1[f"{key}"]
+        return {"student": k['name'], "key": k['_key']}
+
+    def update_student(self, name, key):
+        update = self.db['Students']
+        new=update[f"{key}"]
+        new["name"] = name
+        new.save()
+        print(new)
+        return {"update": new}
