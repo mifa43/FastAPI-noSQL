@@ -25,12 +25,13 @@ class ArangoConn():
     def get_student(self, key):
         document1 = self.db['Students']
         k=document1[f"{key}"]
-        return {"student": k['name'], "key": k['_key']}
+        return {"student": k['name'], "index": k['index-number'], "key": k['_key']}
 
-    def update_student(self, name, key):
+    def update_student(self, name, index, key):
         update = self.db['Students']
         new=update[f"{key}"]
         new["name"] = name
+        new["index-number"] = index
         new.save()
         print(new)
         return {"update": new}
@@ -40,6 +41,10 @@ class ArangoConn():
         for student in list.fetchAll():
             if int(student["index-number"]) >= args:
                 print(student["name"])
-                
-
         return {"students": "lists of students"}
+
+    def delete_student(self, key):
+        student = self.db['Students']
+        delete = student[f"{key}"]
+        delete.delete()
+        return {"delete": "deleted"}
