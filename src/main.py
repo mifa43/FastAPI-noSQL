@@ -16,7 +16,9 @@ logger.setLevel("DEBUG")
 
 class StudentModel(BaseModel):
     name: Optional[str] = None
+    index: Optional[int] = None
     key: Optional[str] = None
+
 app = FastAPI()
 
 @app.middleware('http')
@@ -31,6 +33,11 @@ async def middleware_process(request: Request, call_next):
             "message": "There is no phone response!"
         }, status_code=401)
 
+@app.get("/list-students")
+async def get_students():
+    ls =  ArangoConn().list_student(1)
+    print(ls['students'])
+    return {"message": "list of students"}
 
 @app.put("/update-student")
 def update_student(model: StudentModel):
@@ -45,18 +52,17 @@ async def get_student(model: StudentModel):
 
 @app.post("/add-student")
 async def add_student(model: StudentModel):
-    document = ArangoConn().create_documents(model.name, model.key)
+    document = ArangoConn().create_documents(model.name, model.index ,model.key)
     print(document['newDocument'])
     return {"message": "New student"}
 
 @app.get("/health_check")
-async def health_check():
-
+async def health_check(model: StudentModel):
     # connection = ArangoConn().test_connection()
-    # collection = ArangoConn().create_collection()
-    #document = ArangoConn().create_documents()
+    #collection = ArangoConn().create_collection()
+    #document = ArangoConn().create_documents("Milos")
     # print(connection['database'])
-    # print(collection['newCollection'])
+    #print(collection['newCollection'])
     #print(document['newDocument'])
   
 
