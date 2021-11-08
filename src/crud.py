@@ -14,9 +14,10 @@ class ArangoConn():
         self.createNewCollection = self.db.createCollection(name="Students")
         return {"newCollection": self.db["Students"]}
 
-    def create_documents(self, name, key) -> str:
+    def create_documents(self, name, index_num, key) -> str:
         document1 = self.db['Students'].createDocument()
         document1["name"] = f"{name}"
+        document1["index-number"] = f"{index_num}"
         document1._key = f"{key}"
         document1.save()
         return {"newDocument": document1}
@@ -33,3 +34,12 @@ class ArangoConn():
         new.save()
         print(new)
         return {"update": new}
+
+    def list_student(self, args):
+        list = self.db['Students']
+        for student in list.fetchAll():
+            if int(student["index-number"]) >= args:
+                print(student["name"])
+                
+
+        return {"students": "lists of students"}
