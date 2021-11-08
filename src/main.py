@@ -33,6 +33,12 @@ async def middleware_process(request: Request, call_next):
             "message": "There is no phone response!"
         }, status_code=401)
 
+@app.delete("/delete-student")
+async def delete_student(model: StudentModel):
+    delete = ArangoConn().delete_student(model.key)
+    print(delete['delete'])
+    return {"message": "student deleted"}
+
 @app.get("/list-students")
 async def get_students():
     ls =  ArangoConn().list_student(1)
@@ -41,9 +47,10 @@ async def get_students():
 
 @app.put("/update-student")
 def update_student(model: StudentModel):
-    update = ArangoConn().update_student(model.name, model.key)
+    update = ArangoConn().update_student(model.name, model.index ,model.key)
     update['update']
     return {"message": "update"}
+
 @app.post("/get-student")
 async def get_student(model: StudentModel):
     student = ArangoConn().get_student(model.key)
@@ -57,7 +64,7 @@ async def add_student(model: StudentModel):
     return {"message": "New student"}
 
 @app.get("/health_check")
-async def health_check(model: StudentModel):
+async def health_check():
     # connection = ArangoConn().test_connection()
     #collection = ArangoConn().create_collection()
     #document = ArangoConn().create_documents("Milos")
@@ -65,7 +72,6 @@ async def health_check(model: StudentModel):
     #print(collection['newCollection'])
     #print(document['newDocument'])
   
-
     return {"Health": "OK"}
 
 if __name__ == "__main__":
