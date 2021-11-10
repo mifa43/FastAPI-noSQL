@@ -65,6 +65,11 @@ async def add_student(model: StudentModel):
 
 @app.get("/health_check")
 async def health_check():
+    aql1 = ArangoConn().query_insert()
+    print(aql1)
+    aql = ArangoConn().querys_list()
+    print(aql)
+    
     # connection = ArangoConn().test_connection()
     #collection = ArangoConn().create_collection()
     #document = ArangoConn().create_documents("Milos")
