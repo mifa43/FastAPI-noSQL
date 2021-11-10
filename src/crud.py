@@ -48,3 +48,16 @@ class ArangoConn():
         delete = student[f"{key}"]
         delete.delete()
         return {"delete": "deleted"}
+
+    def querys_list(self):
+        aql = "FOR x IN Students RETURN x._key"
+        queryResult = self.db.AQLQuery(aql, rawResults = True, batchSize=100)
+        for key in queryResult:
+            print(key)
+    
+    def query_insert(self):
+        docs = {"_key": "VinDizel", "name": "Vin", "index-number": 543}
+        bind = {"docs": docs}
+        aql = "INSERT @docs INTO Students LET newDoc = NEW RETURN newDoc"
+        queryResult = self.db.AQLQuery(aql, bindVars=bind)
+        print(queryResult)
