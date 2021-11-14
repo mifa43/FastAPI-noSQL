@@ -1,6 +1,8 @@
+from os import altsep
 from pyArango.connection import Connection
 from pyArango.connection import *
-
+import csv
+import pandas as pd
 class ArangoConn():
     def __init__(self) -> None:
         conn = Connection(arangoURL="http://arango_db:8529", username="root", password="mypassword", verify=True ,verbose=True)
@@ -61,3 +63,12 @@ class ArangoConn():
         aql = "INSERT @docs INTO Students LET newDoc = NEW RETURN newDoc"
         queryResult = self.db.AQLQuery(aql, bindVars=bind)
         print(queryResult)
+
+    def add_csv(self):
+        with open("simple.csv", "r") as f:
+            file = pd.read_csv(f)
+            docs = {"index-number": file["index"][0]}
+            bind = {"docs": docs, "key": file["_key"][0]}
+            aql = "UPDATE @key WITH @docs IN Students LET updated = NEW RETURN updated"
+            query = self.db.AQLQuery(aql, bindVars=bind)
+            print(query)
