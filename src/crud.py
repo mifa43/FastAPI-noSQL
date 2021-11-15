@@ -65,6 +65,9 @@ class ArangoConn():
         print(queryResult)
 
     def add_csv(self):
+        """updejtovanje citanjem csv fajla
+        samo se prva row updejtuje 
+        """
         with open("simple.csv", "r") as f:
             file = pd.read_csv(f)
             docs = {"index-number": file["index"][0]}
