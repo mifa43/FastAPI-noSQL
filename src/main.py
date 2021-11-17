@@ -11,6 +11,8 @@ import csv
 from crud import ArangoConn
 from pydantic import BaseModel
 from typing import Optional
+import time
+import multiprocessing as mp
 logger = logging.getLogger(__name__)
 logger.setLevel("DEBUG")
 
@@ -20,6 +22,8 @@ class StudentModel(BaseModel):
     key: Optional[str] = None
 
 app = FastAPI()
+
+
 
 @app.middleware('http')
 async def middleware_process(request: Request, call_next):
@@ -65,19 +69,22 @@ async def add_student(model: StudentModel):
 
 @app.get("/health_check")
 async def health_check():
+
+    s = ArangoConn().insert_csv()
+    print(s)
     # aql1 = ArangoConn().query_insert()
     # print(aql1)
-    aql2 = ArangoConn().add_csv()
-    print(aql2)
+    # aql2 = ArangoConn().add_csv()
+    # print(aql2)
     # aql = ArangoConn().querys_list()
     # print(aql)
     
     # connection = ArangoConn().test_connection()
-    #collection = ArangoConn().create_collection()
-    #document = ArangoConn().create_documents("Milos")
+    # collection = ArangoConn().create_collection()
+    # document = ArangoConn().create_documents(2019,"aaa", "ada23d12", "KDKD", 11111, "sdfadf", "dafsf", "ddeffde", 44343434, "sadfafs", "aaaaaa")
     # print(connection['database'])
-    #print(collection['newCollection'])
-    #print(document['newDocument'])
+    # print(collection['newCollection'])
+    # print(document['newDocument'])
   
     return {"Health": "OK"}
 
