@@ -3,6 +3,8 @@ from pyArango.connection import Connection
 from pyArango.connection import *
 import csv
 import pandas as pd
+import time
+
 class ArangoConn():
     def __init__(self) -> None:
         conn = Connection(arangoURL="http://arango_db:8529", username="root", password="mypassword", verify=True ,verbose=True)
@@ -13,13 +15,22 @@ class ArangoConn():
     
         return {"database": "connected"}
     def create_collection(self) -> str:
-        self.createNewCollection = self.db.createCollection(name="Students")
-        return {"newCollection": self.db["Students"]}
+        self.createNewCollection = self.db.createCollection(name="Industry")
+        return {"newCollection": self.db["Industry"]}
 
-    def create_documents(self, name, index_num, key) -> str:
-        document1 = self.db['Students'].createDocument()
-        document1["name"] = f"{name}"
-        document1["index-number"] = f"{index_num}"
+    def create_documents(self, year, industry_aggregation_NZSIOC, industry_code_NZSIOC, industry_name_NZSIOC, 
+    units, variable_code, variable_name, variable_category, value, industry_code_ANZSIC06, key) -> str:
+        document1 = self.db['Industry'].createDocument()
+        document1["Year"] = f"{year}"
+        document1["Industry_aggregation_NZSIOC"] = f"{industry_aggregation_NZSIOC}"
+        document1["Industry_code_NZSIOC"] = f"{industry_code_NZSIOC}"
+        document1["Industry_name_NZSIOC"] = f"{industry_name_NZSIOC}"
+        document1["Units"] = f"{units}"
+        document1["Variable_code"] = f"{variable_code}"
+        document1["Variable_name"] = f"{variable_name}"
+        document1["Variable_category"] = f"{variable_category}"
+        document1["Value"] = f"{value}"
+        document1["Industry_code_ANZSIC06"] = f"{industry_code_ANZSIC06}"
         document1._key = f"{key}"
         document1.save()
         return {"newDocument": document1}
@@ -75,3 +86,34 @@ class ArangoConn():
             aql = "UPDATE @key WITH @docs IN Students LET updated = NEW RETURN updated"
             query = self.db.AQLQuery(aql, bindVars=bind)
             print(query)
+
+
+    def insert_csv(self):
+        time_start = time.time()
+        with open("annual-enterprise-survey-2020-financial-year-provisional-csv.csv", "r") as f:
+            file = pd.read_csv(f)
+            num = len(file['Year'])
+            for i in range(num):
+                #print(file['_key'][i], file['name'][i], file['index'][i])
+                docs = {
+                    "year": int(file['Year'][i]),
+                    "industry_aggregation_NZSIOC": str(file['Industry_aggregation_NZSIOC'][i]), 
+                    "industry_code_NZSIOC": file['Industry_code_NZSIOC'][i],
+                    "industry_name_NZSIOC": file['Industry_name_NZSIOC'][i],
+                    "units": file['Units'][i],
+                    "variable_code": file['Variable_code'][i],
+                    "variable_name": file['Variable_name'][i],
+                    "variable_category": file['Variable_category'][i],
+                    "value": file['Value'][i],
+                    "industry_code_ANZSIC06": file['Industry_code_ANZSIC06'][i]
+                    }
+                bind = {"docs": docs}
+                aql = "INSERT @docs INTO Industry LET newDoc = NEW RETURN newDoc"
+                query = self.db.AQLQuery(aql, bindVars=bind)
+                print(query)
+        print((time.time() - time_start))
+ 
+
+#year, industry_aggregation_NZSIOC, industry_code_NZSIOC, industry_name_NZSIOC, units, variable_code, variable_name, variable_category, value, industry_code_ANZSIC06, key
+#76.6106607913971 - prvi test bez multiprocesa
+#74.53744006156921 - test sa funkcijom
