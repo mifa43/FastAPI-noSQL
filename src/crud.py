@@ -4,7 +4,7 @@ from pyArango.connection import *
 import csv
 import pandas as pd
 import time
-
+import pyarrow.parquet as pq
 class ArangoConn():
     def __init__(self) -> None:
         conn = Connection(arangoURL="http://arango_db:8529", username="root", password="mypassword", verify=True ,verbose=True)
@@ -88,30 +88,57 @@ class ArangoConn():
             print(query)
 
 
-    def insert_csv(self):
+    def insert_parquet(self):
         time_start = time.time()
-        with open("annual-enterprise-survey-2020-financial-year-provisional-csv.csv", "r") as f:
-            file = pd.read_csv(f)
-            num = len(file['Year'])
-            for i in range(num):
-                #print(file['_key'][i], file['name'][i], file['index'][i])
-                docs = {
-                    "year": int(file['Year'][i]),
-                    "industry_aggregation_NZSIOC": str(file['Industry_aggregation_NZSIOC'][i]), 
-                    "industry_code_NZSIOC": file['Industry_code_NZSIOC'][i],
-                    "industry_name_NZSIOC": file['Industry_name_NZSIOC'][i],
-                    "units": file['Units'][i],
-                    "variable_code": file['Variable_code'][i],
-                    "variable_name": file['Variable_name'][i],
-                    "variable_category": file['Variable_category'][i],
-                    "value": file['Value'][i],
-                    "industry_code_ANZSIC06": file['Industry_code_ANZSIC06'][i]
-                    }
-                bind = {"docs": docs}
-                aql = "INSERT @docs INTO Industry LET newDoc = NEW RETURN newDoc"
-                query = self.db.AQLQuery(aql, bindVars=bind)
-                print(query)
+        file = pq.read_pandas("Industry").to_pandas()
+        k = len(file['Year'])
+        for i in range(k):
+            docs = {
+                "year": file['Year'][i],
+                "industry_aggregation_NZSIOC": file['Industry_aggregation_NZSIOC'][i], 
+                "industry_code_NZSIOC": file['Industry_code_NZSIOC'][i],
+                "industry_name_NZSIOC": file['Industry_name_NZSIOC'][i],
+                "units": file['Units'][i],
+                "variable_code": file['Variable_code'][i],
+                "variable_name": file['Variable_name'][i],
+                "variable_category": file['Variable_category'][i],
+                "value": file['Value'][i],
+                "industry_code_ANZSIC06": file['Industry_code_ANZSIC06'][i]
+                }
+            bind = {"docs": docs}
+            aql = "INSERT @docs INTO Industry LET newDoc = NEW RETURN newDoc"
+            query = self.db.AQLQuery(aql, bindVars=bind)
+            print(query)
         print((time.time() - time_start))
+
+
+
+
+
+    # def insert_csv(self):
+    #     time_start = time.time()
+    #     with open("annual-enterprise-survey-2020-financial-year-provisional-csv.csv", "r") as f:
+    #         file = pd.read_csv(f)
+    #         num = len(file['Year'])
+    #         for i in range(num):
+    #             #print(file['_key'][i], file['name'][i], file['index'][i])
+    #             docs = {
+    #                 "year": int(file['Year'][i]),
+    #                 "industry_aggregation_NZSIOC": str(file['Industry_aggregation_NZSIOC'][i]), 
+    #                 "industry_code_NZSIOC": file['Industry_code_NZSIOC'][i],
+    #                 "industry_name_NZSIOC": file['Industry_name_NZSIOC'][i],
+    #                 "units": file['Units'][i],
+    #                 "variable_code": file['Variable_code'][i],
+    #                 "variable_name": file['Variable_name'][i],
+    #                 "variable_category": file['Variable_category'][i],
+    #                 "value": file['Value'][i],
+    #                 "industry_code_ANZSIC06": file['Industry_code_ANZSIC06'][i]
+    #                 }
+    #             bind = {"docs": docs}
+    #             aql = "INSERT @docs INTO Industry LET newDoc = NEW RETURN newDoc"
+    #             query = self.db.AQLQuery(aql, bindVars=bind)
+    #             print(query)
+    #     print((time.time() - time_start))
  
 
 #year, industry_aggregation_NZSIOC, industry_code_NZSIOC, industry_name_NZSIOC, units, variable_code, variable_name, variable_category, value, industry_code_ANZSIC06, key
