@@ -69,9 +69,9 @@ async def add_student(model: StudentModel):
 
 @app.get("/health_check")
 async def health_check():
-
-    s = ArangoConn().insert_csv()
-    print(s)
+    ArangoConn().bulk()
+    # s = ArangoConn().insert_parquet()
+    # print(s)
     # aql1 = ArangoConn().query_insert()
     # print(aql1)
     # aql2 = ArangoConn().add_csv()
@@ -81,10 +81,10 @@ async def health_check():
     
     # connection = ArangoConn().test_connection()
     # collection = ArangoConn().create_collection()
-    # document = ArangoConn().create_documents(2019,"aaa", "ada23d12", "KDKD", 11111, "sdfadf", "dafsf", "ddeffde", 44343434, "sadfafs", "aaaaaa")
+    #document = ArangoConn().create_documents()
     # print(connection['database'])
     # print(collection['newCollection'])
-    # print(document['newDocument'])
+    #print(document['newDocument'])
   
     return {"Health": "OK"}
 
