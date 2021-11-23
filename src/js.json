@@ -1,0 +1,11 @@
+{"Year": {"0": "2020", "1": "2019"},
+"Industry_aggregation_NZSIOC": {"0": "lvl 4", "1": "lvl 3"},
+"Industry_code_NZSIOC": {"0": "13131", "1": "333"},
+"Industry_name_NZSIOC": {"0": "klok", "1": "popop"},
+"Units": {"0": "1", "1": "2"},
+"Variable_code": {"0": "kol1-2", "1": "ohch-13"},
+"Variable_name": {"0": "adfadf", "1": "ccccc"},
+"Variable_category": {"0": "kdldl2", "1": "ggff"},
+"Value": {"0": "c1", "1": "d1"},
+"Industry_code_ANZSIC06": {"0": "aaa", "1": "ffff"}
+}        
