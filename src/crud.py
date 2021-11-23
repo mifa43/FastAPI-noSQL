@@ -5,6 +5,7 @@ import csv
 import pandas as pd
 import time
 import pyarrow.parquet as pq
+import json
 class ArangoConn():
     def __init__(self) -> None:
         conn = Connection(arangoURL="http://arango_db:8529", username="root", password="mypassword", verify=True ,verbose=True)
@@ -18,21 +19,25 @@ class ArangoConn():
         self.createNewCollection = self.db.createCollection(name="Industry")
         return {"newCollection": self.db["Industry"]}
 
-    def create_documents(self, year, industry_aggregation_NZSIOC, industry_code_NZSIOC, industry_name_NZSIOC, 
-    units, variable_code, variable_name, variable_category, value, industry_code_ANZSIC06, key) -> str:
-        document1 = self.db['Industry'].createDocument()
-        document1["Year"] = f"{year}"
-        document1["Industry_aggregation_NZSIOC"] = f"{industry_aggregation_NZSIOC}"
-        document1["Industry_code_NZSIOC"] = f"{industry_code_NZSIOC}"
-        document1["Industry_name_NZSIOC"] = f"{industry_name_NZSIOC}"
-        document1["Units"] = f"{units}"
-        document1["Variable_code"] = f"{variable_code}"
-        document1["Variable_name"] = f"{variable_name}"
-        document1["Variable_category"] = f"{variable_category}"
-        document1["Value"] = f"{value}"
-        document1["Industry_code_ANZSIC06"] = f"{industry_code_ANZSIC06}"
-        document1._key = f"{key}"
-        document1.save()
+    def create_documents(self) -> str:
+        time_start = time.time()
+        file = pq.read_pandas("Industry").to_pandas()
+        k = len(file['Year'])
+        for i in range(k):
+            document1 = self.db['Industry'].createDocument()
+            document1["Year"] = file['Year'][i]
+            document1["Industry_aggregation_NZSIOC"] = file['Industry_aggregation_NZSIOC'][i]
+            document1["Industry_code_NZSIOC"] = file['Industry_code_NZSIOC'][i]
+            document1["Industry_name_NZSIOC"] = file['Industry_name_NZSIOC'][i]
+            document1["Units"] = file['Units'][i]
+            document1["Variable_code"] = file['Variable_code'][i]
+            document1["Variable_name"] = file['Variable_name'][i]
+            document1["Variable_category"] = file['Variable_category'][i]
+            document1["Value"] = file['Value'][i]
+            document1["Industry_code_ANZSIC06"] = file['Industry_code_ANZSIC06'][i]
+            document1.save()
+        print((time.time() - time_start))
+
         return {"newDocument": document1}
     
     def get_student(self, key):
@@ -93,6 +98,7 @@ class ArangoConn():
         file = pq.read_pandas("Industry").to_pandas()
         k = len(file['Year'])
         for i in range(k):
+            
             docs = {
                 "year": file['Year'][i],
                 "industry_aggregation_NZSIOC": file['Industry_aggregation_NZSIOC'][i], 
@@ -110,11 +116,32 @@ class ArangoConn():
             query = self.db.AQLQuery(aql, bindVars=bind)
             print(query)
         print((time.time() - time_start))
-
-
-
-
-
+  
+    def bulk(self):
+        with open("Industry.json", "r") as js:
+            time_start = time.time()
+            data = json.load(js)
+            num = len(data["Year"])
+            l = []
+            for i in range(num):
+                
+                d = self.db['Industry'].createDocument()
+                d["Year"] = data["Year"][f"{i}"]
+                d["Industry_aggregation_NZSIOC"] = data["Industry_aggregation_NZSIOC"][f"{i}"]
+                d["Industry_code_NZSIOC"] = data["Industry_code_NZSIOC"][f"{i}"]
+                d["Industry_name_NZSIOC"] = data["Industry_name_NZSIOC"][f"{i}"]
+                d["Units"] = data["Units"][f"{i}"]
+                d["Variable_code"] = data["Variable_code"][f"{i}"]
+                d["Variable_name"] = data["Variable_name"][f"{i}"]
+                d["Variable_category"] = data["Variable_category"][f"{i}"]
+                d["Value"] = data["Value"][f"{i}"]
+                d["Industry_code_ANZSIC06"] = data["Industry_code_ANZSIC06"][f"{i}"]
+                    
+                l.append(d)
+            print(l)
+            c = self.db['Industry']
+            c.bulkSave(l)
+            print((time.time() - time_start))
     # def insert_csv(self):
     #     time_start = time.time()
     #     with open("annual-enterprise-survey-2020-financial-year-provisional-csv.csv", "r") as f:
@@ -144,3 +171,18 @@ class ArangoConn():
 #year, industry_aggregation_NZSIOC, industry_code_NZSIOC, industry_name_NZSIOC, units, variable_code, variable_name, variable_category, value, industry_code_ANZSIC06, key
 #76.6106607913971 - prvi test bez multiprocesa
 #74.53744006156921 - test sa funkcijom
+#58.07284164428711 - upisivanje bez aql-a 
+
+
+
+
+# d["Year"] = data["Year"]
+#                 d["Industry_aggregation_NZSIOC"] = data["Industry_aggregation_NZSIOC"]
+#                 d["Industry_code_NZSIOC"] = data["Industry_code_NZSIOC"]
+#                 d["Industry_name_NZSIOC"] = data["Industry_name_NZSIOC"]
+#                 d["Units"] = data["Units"]
+#                 d["Variable_code"] = data["Variable_code"]
+#                 d["Variable_name"] = data["Variable_name"]
+#                 d["Variable_category"] = data["Variable_category"]
+#                 d["Value"] = data["Value"]
+#                 d["Industry_code_ANZSIC06"] = data["Industry_code_ANZSIC06"]
