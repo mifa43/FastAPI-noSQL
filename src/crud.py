@@ -138,7 +138,6 @@ class ArangoConn():
                 d["Industry_code_ANZSIC06"] = data["Industry_code_ANZSIC06"][f"{i}"]
                     
                 l.append(d)
-            print(l)
             c = self.db['Industry']
             c.bulkSave(l)
             print((time.time() - time_start))
